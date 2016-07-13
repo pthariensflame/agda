@@ -77,6 +77,7 @@ import Agda.Interaction.FindFile (checkModuleName)
 -- import Agda.Interaction.Imports  -- for type-checking in ghci
 import {-# SOURCE #-} Agda.Interaction.Imports (scopeCheckImport)
 import Agda.Interaction.Options
+import Agda.Interaction.Options.Lenses (getSafeMode)
 
 import Agda.Utils.Either
 import Agda.Utils.Except ( MonadError(catchError, throwError) )
@@ -1116,7 +1117,7 @@ instance ToAbstract [C.Declaration] [A.Declaration] where
     -- When --safe is active the termination checker (Issue 586) and
     -- positivity checker (Issue 1614) may not be switched off, and
     -- polarities may not be assigned.
-    ds <- ifM (optSafe <$> commandLineOptions)
+    ds <- ifM (getSafeMode <$> commandLineOptions)
               (mapM (noNoTermCheck >=> noNoPositivityCheck >=> noPolarity) ds)
               (return ds)
     toAbstract =<< niceDecls ds
@@ -1290,7 +1291,7 @@ instance ToAbstract NiceDeclaration A.Declaration where
     C.Axiom r f p i rel _ x t -> do
       -- check that we do not postulate in --safe mode
       clo <- commandLineOptions
-      when (optSafe clo) (typeError (SafeFlagPostulate x))
+      when (getSafeMode clo) (typeError (SafeFlagPostulate x))
       -- check the postulate
       toAbstractNiceAxiom A.NoFunSig NotMacroDef d
 

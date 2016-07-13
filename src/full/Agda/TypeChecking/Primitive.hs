@@ -19,6 +19,7 @@ import Data.Traversable (traverse)
 import Data.Monoid (mempty)
 
 import Agda.Interaction.Options
+import Agda.Interaction.Options.Lenses (getSafeMode)
 
 import Agda.Syntax.Position
 import Agda.Syntax.Common hiding (Nat)
@@ -326,7 +327,7 @@ fromLiteral f = fromReducedTerm $ \t -> case t of
 primTrustMe :: TCM PrimitiveImpl
 primTrustMe = do
   clo <- commandLineOptions
-  when (optSafe clo) (typeError SafeFlagPrimTrustMe)
+  when (getSafeMode clo) (typeError SafeFlagPrimTrustMe)
   t    <- hPi "a" (el primLevel) $
           hPi "A" (return $ sort $ varSort 0) $
           hPi "x" (El (varSort 1) <$> varM 0) $

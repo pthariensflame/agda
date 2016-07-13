@@ -47,8 +47,9 @@ import Agda.Utils.Impossible
 setPragmaOptions :: PragmaOptions -> TCM ()
 setPragmaOptions opts = do
   clo <- commandLineOptions
-  let unsafe = unsafePragmaOptions opts
-  when (optSafe clo && not (null unsafe)) $ typeError (SafeFlagPragma unsafe)
+  let unsafe   = unsafePragmaOptions opts
+  let safeMode = Lens.getSafeMode clo || Lens.getSafeMode opts
+  when (safeMode && not (null unsafe)) $ typeError (SafeFlagPragma unsafe)
   ok <- liftIO $ runOptM $ checkOpts (clo { optPragmaOptions = opts })
   case ok of
     Left err   -> __IMPOSSIBLE__
@@ -83,7 +84,7 @@ setCommandLineOptions' relativeTo opts = do
           getIncludeDirs
         incs -> return incs
       modify $ Lens.setCommandLineOptions opts{ optAbsoluteIncludePaths = incs }
-             . Lens.setPragmaOptions (optPragmaOptions opts)
+      setPragmaOptions (optPragmaOptions opts)
       updateBenchmarkingStatus
 
 libToTCM :: LibM a -> TCM a

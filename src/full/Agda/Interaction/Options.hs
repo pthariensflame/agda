@@ -116,7 +116,6 @@ data CommandLineOptions = Options
   , optForcing          :: Bool
   , optPragmaOptions    :: PragmaOptions
   , optEpicFlags        :: [String]
-  , optSafe             :: Bool
   , optSharing          :: Bool
   , optCaching          :: Bool
   }
@@ -129,6 +128,7 @@ data PragmaOptions = PragmaOptions
   , optShowIrrelevant            :: Bool
   , optVerbose                   :: Verbosity
   , optProofIrrelevance          :: Bool
+  , optSafe                      :: Bool
   , optAllowUnsolved             :: Bool
   , optDisablePositivity         :: Bool
   , optTerminationCheck          :: Bool
@@ -207,7 +207,6 @@ defaultOptions = Options
   , optForcing          = True
   , optPragmaOptions    = defaultPragmaOptions
   , optEpicFlags        = []
-  , optSafe             = False
   , optSharing          = False
   , optCaching          = False
   }
@@ -220,6 +219,7 @@ defaultPragmaOptions = PragmaOptions
   , optProofIrrelevance          = False
   , optExperimentalIrrelevance   = False
   , optIrrelevantProjections     = True
+  , optSafe                      = False
   , optAllowUnsolved             = False
   , optDisablePositivity         = False
   , optTerminationCheck          = True
@@ -326,7 +326,7 @@ versionFlag o = return $ o { optShowVersion = True }
 helpFlag :: Flag CommandLineOptions
 helpFlag o = return $ o { optShowHelp = True }
 
-safeFlag :: Flag CommandLineOptions
+safeFlag :: Flag PragmaOptions
 safeFlag o = return $ o { optSafe = True }
 
 sharingFlag :: Bool -> Flag CommandLineOptions
@@ -605,8 +605,6 @@ standardOptions =
                     "don't use default libraries"
     , Option []     ["no-forcing"] (NoArg noForcingFlag)
                     "disable the forcing optimisation"
-    , Option []     ["safe"] (NoArg safeFlag)
-                    "disable postulates, unsafe OPTION pragmas and primTrustMe"
     , Option []     ["sharing"] (NoArg $ sharingFlag True)
                     "enable sharing and call-by-need evaluation (experimental) (default: OFF)"
     , Option []     ["no-sharing"] (NoArg $ sharingFlag False)
@@ -632,6 +630,8 @@ pragmaOptions =
                     "set verbosity level to N"
     -- , Option []          ["proof-irrelevance"] (NoArg proofIrrelevanceFlag)
     --              "enable proof irrelevance (experimental feature)"
+    , Option []     ["safe"] (NoArg safeFlag)
+                    "disable postulates, unsafe OPTION pragmas and primTrustMe"
     , Option []     ["allow-unsolved-metas"] (NoArg allowUnsolvedFlag)
                     "allow unsolved meta variables (only needed in batch mode)"
     , Option []     ["no-positivity-check"] (NoArg noPositivityFlag)
